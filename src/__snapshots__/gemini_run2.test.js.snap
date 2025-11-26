@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DestroyButton matches snapshot 1`] = `"<button data-testid="DestroyButton" type="button" aria-label="Delete"> × </button>"`;
