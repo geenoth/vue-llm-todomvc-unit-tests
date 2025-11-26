@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1764149541458" clover="3.2.0">
+  <project timestamp="1764149541458" name="All files">
+    <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3" elements="21" coveredelements="20" complexity="0" loc="16" ncloc="16" packages="1" files="1" classes="1"/>
+    <file name="04_ClearCompletedButton.vue" path="D:\4th Year\2nd Sem\Resarch project\GENERATE TESTS\EXAMPLE\runner-vue\src\04_ClearCompletedButton.vue">
+      <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="8" count="1" type="stmt"/>
+      <line num="21" count="23" type="stmt"/>
+      <line num="22" count="23" type="stmt"/>
+      <line num="23" count="23" type="stmt"/>
+      <line num="25" count="7" type="cond" truecount="1" falsecount="1"/>
+      <line num="27" count="23" type="stmt"/>
+      <line num="32" count="23" type="stmt"/>
+      <line num="36" count="23" type="stmt"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="44" count="1" type="stmt"/>
+      <line num="45" count="1" type="stmt"/>
+      <line num="46" count="1" type="stmt"/>
+      <line num="48" count="27" type="stmt"/>
+      <line num="54" count="1" type="stmt"/>
+    </file>
+  </project>
+</coverage>
