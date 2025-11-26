@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FilterLink_Active snapshot test for active state 1`] = `"<a href="#" data-testid="FilterLink_Active" class="selected"> Active </a>"`;
+
+exports[`FilterLink_Active snapshot test for consistent rendering 1`] = `"<a href="#" data-testid="FilterLink_Active" class=""> Active </a>"`;
