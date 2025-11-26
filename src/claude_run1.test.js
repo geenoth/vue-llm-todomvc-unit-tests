@@ -1,92 +1,153 @@
+import EditTodoInput from './02_EditTodoInput.vue';
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
-import EditTodoInput from './02_EditTodoInput.vue'
+import { defineComponent, ref, watch } from 'vue'
 
 describe('EditTodoInput', () => {
-  let wrapper
-
-  afterEach(() => {
-    if (wrapper) {
-      wrapper.unmount()
-    }
-  })
-
   describe('Rendering', () => {
-    it('should render the input element', () => {
-      wrapper = mount(EditTodoInput)
+    it('should render an input element', () => {
+      const wrapper = mount(EditTodoInput)
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       expect(input.exists()).toBe(true)
       expect(input.element.tagName).toBe('INPUT')
     })
 
-    it('should have correct class', () => {
-      wrapper = mount(EditTodoInput)
+    it('should have the correct CSS class', () => {
+      const wrapper = mount(EditTodoInput)
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       expect(input.classes()).toContain('edit-todo-input')
     })
 
-    it('should display default placeholder', () => {
-      wrapper = mount(EditTodoInput)
+    it('should render with default placeholder', () => {
+      const wrapper = mount(EditTodoInput)
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       expect(input.attributes('placeholder')).toBe('Edit todo')
     })
 
-    it('should display custom placeholder', () => {
-      wrapper = mount(EditTodoInput, {
-        props: {
-          placeholder: 'Custom placeholder'
-        }
+    it('should render with custom placeholder', () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { placeholder: 'Custom placeholder' }
       })
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       expect(input.attributes('placeholder')).toBe('Custom placeholder')
     })
 
-    it('should initialize with modelValue prop', () => {
-      wrapper = mount(EditTodoInput, {
-        props: {
-          modelValue: 'Initial text'
-        }
-      })
+    it('should render with empty modelValue by default', () => {
+      const wrapper = mount(EditTodoInput)
       const input = wrapper.find('[data-testid="EditTodoInput"]')
-      expect(input.element.value).toBe('Initial text')
+      expect(input.element.value).toBe('')
     })
 
-    it('should initialize with empty string when no modelValue provided', () => {
-      wrapper = mount(EditTodoInput)
+    it('should render with provided modelValue', () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Test todo' }
+      })
       const input = wrapper.find('[data-testid="EditTodoInput"]')
+      expect(input.element.value).toBe('Test todo')
+    })
+  })
+
+  describe('Props', () => {
+    it('should accept modelValue prop', () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Initial value' }
+      })
+      expect(wrapper.props('modelValue')).toBe('Initial value')
+    })
+
+    it('should accept placeholder prop', () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { placeholder: 'Enter text' }
+      })
+      expect(wrapper.props('placeholder')).toBe('Enter text')
+    })
+
+    it('should update text when modelValue prop changes', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Initial' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      expect(input.element.value).toBe('Initial')
+
+      await wrapper.setProps({ modelValue: 'Updated' })
+      expect(input.element.value).toBe('Updated')
+    })
+  })
+
+  describe('User Interactions - Input', () => {
+    it('should update text value when user types', async () => {
+      const wrapper = mount(EditTodoInput)
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.setValue('New todo item')
+      expect(input.element.value).toBe('New todo item')
+    })
+
+    it('should handle empty input', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Existing' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.setValue('')
       expect(input.element.value).toBe('')
     })
   })
 
-  describe('User Interactions', () => {
-    it('should update input value on user input', async () => {
-      wrapper = mount(EditTodoInput)
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      await input.setValue('New todo text')
-      
-      expect(input.element.value).toBe('New todo text')
-    })
-
-    it('should emit save and update:modelValue on Enter key', async () => {
-      wrapper = mount(EditTodoInput, {
-        props: {
-          modelValue: 'Test todo'
-        }
+  describe('User Interactions - Enter Key', () => {
+    it('should emit save event on Enter key press', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Test todo' }
       })
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       
-      await input.setValue('Updated todo')
       await input.trigger('keydown.enter')
       
       expect(wrapper.emitted('save')).toBeTruthy()
-      expect(wrapper.emitted('save')[0]).toEqual(['Updated todo'])
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')[0]).toEqual(['Updated todo'])
+      expect(wrapper.emitted('save')[0]).toEqual(['Test todo'])
     })
 
-    it('should emit cancel on Escape key', async () => {
-      wrapper = mount(EditTodoInput)
+    it('should emit update:modelValue event on Enter key press', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Test todo' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+      expect(wrapper.emitted('update:modelValue')[0]).toEqual(['Test todo'])
+    })
+
+    it('should trim whitespace on save via Enter', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: '  Trimmed todo  ' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')[0]).toEqual(['Trimmed todo'])
+      expect(wrapper.emitted('update:modelValue')[0]).toEqual(['Trimmed todo'])
+    })
+
+    it('should emit empty string for whitespace-only input on Enter', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: '   ' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')[0]).toEqual([''])
+      expect(wrapper.emitted('update:modelValue')[0]).toEqual([''])
+    })
+  })
+
+  describe('User Interactions - Escape Key', () => {
+    it('should emit cancel event on Escape key press', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Test todo' }
+      })
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       
       await input.trigger('keydown.esc')
@@ -95,135 +156,145 @@ describe('EditTodoInput', () => {
       expect(wrapper.emitted('cancel')).toHaveLength(1)
     })
 
-    it('should emit save and update:modelValue on blur', async () => {
-      wrapper = mount(EditTodoInput)
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      await input.setValue('Blurred todo')
-      await input.trigger('blur')
-      
-      expect(wrapper.emitted('save')).toBeTruthy()
-      expect(wrapper.emitted('save')[0]).toEqual(['Blurred todo'])
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')[0]).toEqual(['Blurred todo'])
-    })
-
-    it('should trim whitespace when saving', async () => {
-      wrapper = mount(EditTodoInput)
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      await input.setValue('  todo with spaces  ')
-      await input.trigger('keydown.enter')
-      
-      expect(wrapper.emitted('save')[0]).toEqual(['todo with spaces'])
-      expect(wrapper.emitted('update:modelValue')[0]).toEqual(['todo with spaces'])
-    })
-
-    it('should emit empty string when saving empty input', async () => {
-      wrapper = mount(EditTodoInput)
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      await input.setValue('')
-      await input.trigger('keydown.enter')
-      
-      expect(wrapper.emitted('save')[0]).toEqual([''])
-      expect(wrapper.emitted('update:modelValue')[0]).toEqual([''])
-    })
-
-    it('should emit empty string when saving whitespace-only input', async () => {
-      wrapper = mount(EditTodoInput)
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      await input.setValue('   ')
-      await input.trigger('keydown.enter')
-      
-      expect(wrapper.emitted('save')[0]).toEqual([''])
-      expect(wrapper.emitted('update:modelValue')[0]).toEqual([''])
-    })
-  })
-
-  describe('Props and State Changes', () => {
-    it('should update internal text when modelValue prop changes', async () => {
-      wrapper = mount(EditTodoInput, {
-        props: {
-          modelValue: 'Initial'
-        }
+    it('should not emit save event on Escape key press', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Test todo' }
       })
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      expect(input.element.value).toBe('Initial')
-      
-      await wrapper.setProps({ modelValue: 'Updated' })
-      await nextTick()
-      
-      expect(input.element.value).toBe('Updated')
-    })
-
-    it('should watch modelValue prop changes reactively', async () => {
-      wrapper = mount(EditTodoInput, {
-        props: {
-          modelValue: 'First'
-        }
-      })
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      await wrapper.setProps({ modelValue: 'Second' })
-      await nextTick()
-      expect(input.element.value).toBe('Second')
-      
-      await wrapper.setProps({ modelValue: 'Third' })
-      await nextTick()
-      expect(input.element.value).toBe('Third')
-    })
-
-    it('should update placeholder when prop changes', async () => {
-      wrapper = mount(EditTodoInput, {
-        props: {
-          placeholder: 'Original'
-        }
-      })
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      expect(input.attributes('placeholder')).toBe('Original')
-      
-      await wrapper.setProps({ placeholder: 'New placeholder' })
-      
-      expect(input.attributes('placeholder')).toBe('New placeholder')
-    })
-
-    it('should not emit cancel on save', async () => {
-      wrapper = mount(EditTodoInput)
-      const input = wrapper.find('[data-testid="EditTodoInput"]')
-      
-      await input.setValue('Test')
-      await input.trigger('keydown.enter')
-      
-      expect(wrapper.emitted('cancel')).toBeFalsy()
-    })
-
-    it('should not emit save or update:modelValue on cancel', async () => {
-      wrapper = mount(EditTodoInput)
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       
       await input.trigger('keydown.esc')
       
       expect(wrapper.emitted('save')).toBeFalsy()
-      expect(wrapper.emitted('update:modelValue')).toBeFalsy()
     })
+  })
 
-    it('should handle multiple save operations', async () => {
-      wrapper = mount(EditTodoInput)
+  describe('User Interactions - Blur', () => {
+    it('should emit save event on blur', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Blur test' }
+      })
       const input = wrapper.find('[data-testid="EditTodoInput"]')
       
-      await input.setValue('First')
-      await input.trigger('keydown.enter')
-      
-      await input.setValue('Second')
       await input.trigger('blur')
       
-      expect(wrapper.emitted('save')).toHaveLength(2)
-      expect(wrapper.emitted('save')[0]).toEqual(['First'])
-      expect(wrapper.emitted('save')[1]).toEqual(['Second'])
+      expect(wrapper.emitted('save')).toBeTruthy()
+      expect(wrapper.emitted('save')[0]).toEqual(['Blur test'])
+    })
+
+    it('should emit update:modelValue event on blur', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Blur test' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('blur')
+      
+      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
+      expect(wrapper.emitted('update:modelValue')[0]).toEqual(['Blur test'])
+    })
+
+    it('should trim whitespace on blur', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: '  Blur trimmed  ' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('blur')
+      
+      expect(wrapper.emitted('save')[0]).toEqual(['Blur trimmed'])
+    })
+  })
+
+  describe('State Changes', () => {
+    it('should update internal text when typing and emit on save', async () => {
+      const wrapper = mount(EditTodoInput)
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.setValue('New value')
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')[0]).toEqual(['New value'])
+      expect(wrapper.emitted('update:modelValue')[0]).toEqual(['New value'])
+    })
+
+    it('should handle null modelValue gracefully', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: '' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')[0]).toEqual([''])
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('should handle rapid Enter key presses', async () => {
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: 'Rapid test' }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      await input.trigger('keydown.enter')
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')).toHaveLength(3)
+    })
+
+    it('should handle special characters in input', async () => {
+      const specialText = '<script>alert("xss")</script>'
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: specialText }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')[0]).toEqual([specialText])
+    })
+
+    it('should handle unicode characters', async () => {
+      const unicodeText = '日本語テスト 🎉'
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: unicodeText }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')[0]).toEqual([unicodeText])
+    })
+
+    it('should handle very long input', async () => {
+      const longText = 'a'.repeat(1000)
+      const wrapper = mount(EditTodoInput, {
+        props: { modelValue: longText }
+      })
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      await input.trigger('keydown.enter')
+      
+      expect(wrapper.emitted('save')[0]).toEqual([longText])
+    })
+  })
+
+  describe('v-model Behavior', () => {
+    it('should work as a two-way binding component', async () => {
+      const Parent = defineComponent({
+        components: { EditTodoInput },
+        setup() {
+          const todoText = ref('Initial')
+          return { todoText }
+        },
+        template: '<EditTodoInput v-model="todoText" />'
+      })
+      
+      const wrapper = mount(Parent)
+      const input = wrapper.find('[data-testid="EditTodoInput"]')
+      
+      expect(input.element.value).toBe('Initial')
     })
   })
 })

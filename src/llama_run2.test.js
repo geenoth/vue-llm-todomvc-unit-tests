@@ -1,0 +1,68 @@
+import { shallowMount } from '@vue/test-utils'
+import EditTodoInput from './02_EditTodoInput.vue'
+
+describe('EditTodoInput', () => {
+  it('renders correctly', () => {
+    const wrapper = shallowMount(EditTodoInput)
+    expect(wrapper.find('[data-testid="EditTodoInput"]').exists()).toBe(true)
+  })
+
+  it('renders with default placeholder', () => {
+    const wrapper = shallowMount(EditTodoInput)
+    expect(wrapper.find('[data-testid="EditTodoInput"]').attributes('placeholder')).toBe('Edit todo')
+  })
+
+  it('renders with custom placeholder', () => {
+    const wrapper = shallowMount(EditTodoInput, {
+      props: { placeholder: 'Custom placeholder' }
+    })
+    expect(wrapper.find('[data-testid="EditTodoInput"]').attributes('placeholder')).toBe('Custom placeholder')
+  })
+
+  it('initially renders with modelValue prop', () => {
+    const wrapper = shallowMount(EditTodoInput, {
+      props: { modelValue: 'Initial value' }
+    })
+    expect(wrapper.find('[data-testid="EditTodoInput"]').element.value).toBe('Initial value')
+  })
+
+  it('updates modelValue prop when input changes', async () => {
+    const wrapper = shallowMount(EditTodoInput, {
+      props: { modelValue: 'Initial value' }
+    })
+    const input = wrapper.find('[data-testid="EditTodoInput"]')
+    await input.setValue('New value')
+    expect(wrapper.emitted('update:modelValue')[0][0]).toBe('New value')
+  })
+
+  it('emits "save" event when Enter key is pressed', async () => {
+    const wrapper = shallowMount(EditTodoInput, {
+      props: { modelValue: 'Initial value' }
+    })
+    const input = wrapper.find('[data-testid="EditTodoInput"]')
+    await input.setValue('New value')
+    await input.trigger('keydown.enter')
+    expect(wrapper.emitted('save')).toHaveLength(1)
+    expect(wrapper.emitted('save')[0][0]).toBe('New value')
+  })
+
+  it('emits "save" event when input field is blurred', async () => {
+    const wrapper = shallowMount(EditTodoInput, {
+      props: { modelValue: 'Initial value' }
+    })
+    const input = wrapper.find('[data-testid="EditTodoInput"]')
+    await input.setValue('New value')
+    await input.trigger('blur')
+    expect(wrapper.emitted('save')).toHaveLength(1)
+    expect(wrapper.emitted('save')[0][0]).toBe('New value')
+  })
+
+  it('emits "cancel" event when Esc key is pressed', async () => {
+    const wrapper = shallowMount(EditTodoInput, {
+      props: { modelValue: 'Initial value' }
+    })
+    const input = wrapper.find('[data-testid="EditTodoInput"]')
+    await input.trigger('keydown.esc')
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+  })
+})
