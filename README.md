@@ -1,23 +1,11 @@
 # runner-vue
 
-This template should help get you started developing with Vue 3 in Vite.
+A Vue 3 + Vite project with comprehensive testing setup using Jest and Vue Testing Library.
 
-## Recommended IDE Setup
+## Prerequisites
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+- Node.js ^20.19.0 || >=22.12.0
+- npm or yarn
 
 ## Project Setup
 
@@ -25,20 +13,47 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+## Available Scripts
 
+### Development
 ```sh
-npm run dev
+npm run dev          # Start development server with hot-reload
+npm run preview      # Preview production build locally
 ```
 
-### Compile and Minify for Production
-
+### Build
 ```sh
-npm run build
+npm run build        # Build for production
 ```
 
-### Lint with [ESLint](https://eslint.org/)
-
+### Testing
 ```sh
-npm run lint
+npm run test         # Run Jest tests
 ```
+
+### Code Quality
+```sh
+npm run lint         # Lint and fix with ESLint
+npm run format       # Format code with Prettier
+```
+
+## Tech Stack
+
+- **Framework**: Vue 3
+- **Build Tool**: Vite
+- **Testing**: Jest + Vue Testing Library
+- **Linting**: ESLint
+- **Formatting**: Prettier
+
+## IDE Setup
+
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+
+## Browser DevTools
+
+- [Vue.js devtools for Chrome](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- [Vue.js devtools for Firefox](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+
+## Configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/) for customization options.
