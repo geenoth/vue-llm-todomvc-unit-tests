@@ -89,3 +89,4 @@ This project uses Jest with Vue Testing Library for component testing. The test 
 ## Configuration
 
 See [Vite Configuration Reference](https://vite.dev/config/) for customization options.
+
